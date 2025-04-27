@@ -1,0 +1,50 @@
+import LocalizedStrings from 'react-localization';
+
+let analytics_strings = new LocalizedStrings({
+  gr: {
+    title: "Στατιστικά",
+    supply_title: "Ανάλυση Τροφοδοσιών",
+    timeseries_title: "Ανάλυση Χρονοσειρών",
+    atm_title: "Ανάλυση ΑΤΜ",
+    routes_title: "Ανάλυση Πλάνων",
+    supply_data: "Δεδομένα Τροφοδοσίας",
+    timeseries_data_avg: "Μέση",
+    timeseries_data_min: "Ελάχιστη",
+    timeseries_data_max: "Μέγιστη",
+    timeseries_data_median: "Ενδιάμεση",
+    timeseries_data_std: "Τυπική Απόκληση",
+    timeseries_data_length: "Εγγραφές",
+    timeseries_data_total: "Συνολική",
+    timeseries_data_coverage: "Κάλυψη",
+    select_atm: "Επιλογή κωδικού ATM:",
+    no_atm_available: "Δεν βρέθηκαν διαθέσημοι κωδικοί ΑΤΜ.",
+    search_placeholder: "Αναζήτηση ATM...",
+    atm_statistics: "Δεδομένα ΑΤΜ",
+    time: "Χρόνος",
+    value: "Τιμή",
+  },
+  en: {
+    title: "Analytics",
+    supply_title: "Supply Overview",
+    timeseries_title: "Timeseries Overview",
+    atm_title: "ATM Analysis",
+    routes_title: "Route Analysis",
+    supply_data: "Supply Data",
+    timeseries_data_avg: "Average",
+    timeseries_data_min: "Minimum",
+    timeseries_data_max: "Maximum",
+    timeseries_data_median: "Median",
+    timeseries_data_std: "Deviation",
+    timeseries_data_length: "Points",
+    timeseries_data_total: "Total",
+    timeseries_data_coverage: "Coverage",
+    select_atm: "Select an ATM:",
+    no_atm_available: "No ATMs available",
+    search_placeholder: "Search ATM...",
+    atm_statistics: "ATM Overview",
+    time: "Time",
+    value: "Value",
+  }
+});
+
+export default analytics_strings;

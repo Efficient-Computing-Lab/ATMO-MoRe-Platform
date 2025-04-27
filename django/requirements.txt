@@ -1,0 +1,6 @@
+drf-yasg
+djangorestframework
+django-rest-swagger
+python-decouple
+psycopg
+django-cors-headers

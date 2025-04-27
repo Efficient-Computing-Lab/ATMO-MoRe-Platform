@@ -1,0 +1,11 @@
+.env
+Pipfile.lock
+postgres/*
+mongodb/*
+node_modules/*
+package-lock.json
+django/results/*
+django/datastore/*
+django/static/*
+*.pyc
+*.sqlite3

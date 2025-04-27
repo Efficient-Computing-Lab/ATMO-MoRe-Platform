@@ -1,0 +1,50 @@
+services:
+  atmo_db:
+    image: postgres
+    container_name: atmo-db
+    volumes:
+      - ./postgres/data:/var/lib/postgresql/data
+    env_file:
+      - path: .env
+        required: true
+  atmo_mongo:
+    restart: always
+    image: mongo:6-jammy
+    container_name: atmo-mongo
+    env_file:
+      - path: .env
+        required: true
+    ports:
+      - '50019:27017'
+    volumes:
+      - ./mongodb/data:/data/db
+  atmo_django:
+    build: ./django
+    container_name: atmo-django
+    working_dir: /atmo
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./django:/atmo
+    ports:
+      - "8000:8000"
+    env_file:
+      - path: .env
+        required: true
+    depends_on:
+      - atmo_db
+      - atmo_mongo
+  atmo-gui:
+    build: ./react
+    container_name: atmo-gui
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./react/atmo_platform/src:/atmo_platform/src
+      - ./react/atmo_platform/public:/atmo_platform/public
+    restart: always
+    environment:
+      - REACT_APP_DJANGO_HOST=http://localhost:8000
+    working_dir: /atmo_platform
+    command: npm run start
+    depends_on:
+      - atmo_django

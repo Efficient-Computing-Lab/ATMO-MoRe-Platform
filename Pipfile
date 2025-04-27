@@ -1,0 +1,27 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+drf-yasg = "*"
+djangorestframework = "*"
+pandas = "*"
+pymongo = "*"
+xlrd = "*"
+openpyxl = "*"
+keras-tcn = "*"
+matplotlib = "*"
+scipy = "*"
+scikit-learn = "*"
+holidays = "*"
+arch = "*"
+geopy = "*"
+gmplot = "*"
+networkx = "*"
+django-cors-headers = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.12"

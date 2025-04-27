@@ -1,0 +1,96 @@
+/* src/theme.css */
+:root {
+  --primary-color: #343a40; /* Replace with the actual primary color */
+  --secondary-color: #0185f2; /* Replace with the actual secondary color */
+  --light-color: #f8f9fa;
+  --dark-color: #343a40;
+}
+
+.bg-primary {
+  --bs-bg-opacity: 1;
+  background-color: var(--secondary-color) !important;
+}
+
+.btn-primary {
+  background-color: var(--secondary-color) !important;
+}
+
+.App {
+  font-family: Arial, sans-serif;
+}
+
+body {
+  background-color: var(--light-color);
+  color: var(--dark-color);
+}
+
+.navbar {
+  background-color: var(--primary-color) !important;
+  padding: 5px 10px;
+  position: fixed;
+  width: 100%;
+  z-index: 50;
+}
+
+.logo-main {
+  margin-right: 5px;
+}
+
+.sidebar {
+  background-color: var(--secondary-color);
+  color: var(--light-color);
+  height: 100vh;
+  position: fixed;
+  width: 250px;
+  top: 50px;
+  z-index: 49;
+}
+
+.sidebar .nav-link {
+  color: var(--light-color);
+}
+
+.sidebar .nav-link.active {
+  background-color: var(--primary-color);
+  color: var(--light-color);
+}
+
+.custom-tabs .nav-link {
+  color: white !important; /* Ensure tabs remain visible */
+  background-color: rgba(0, 0, 0, 0.2);
+  margin-right: 10px;
+  border-radius: 20px;
+}
+
+.custom-tabs .nav-link.active {
+  background-color: white !important; /* White background for active tab */
+  color: black !important; /* Black text for active tab */
+}
+
+.btn-expand{
+  box-sizing: content-box;
+  width: 1em;
+  height: 1em;
+  padding: .25em .25em;
+  color: #000;
+  background: transparent url("assets/expand.svg") center / 1em auto no-repeat;
+  border: 0;
+  border-radius: .375rem;
+  opacity: 0.5;
+  position: absolute;
+  right: 3em;
+}
+
+.btn-expand:hover{
+  opacity: 0.75;
+}
+
+.modal-90w {
+  max-width: none !important;
+  width: 90%;
+}
+
+.modal-body iframe{
+  height: 100%;
+  min-height: 500px;
+}
