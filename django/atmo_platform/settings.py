@@ -27,8 +27,13 @@ SECRET_KEY = 'django-insecure-j%z-19an1a*vjo(coyb9m_q$#eq26jh6#gaq&gjz3%(02@^@^)
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+CSRF_COOKIE_HTTPONLY = False
+CSRF_COOKIE_SAMESITE = 'Lax'  # allows POST from same-site (localhost to localhost)
+CSRF_COOKIE_SECURE = False    # for local HTTP (use True in production)
+SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_SECURE = False  # again, True only in production
+ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+CSRF_TRUSTED_ORIGINS = ['http://localhost:3000',]
 CORS_ALLOW_ALL_ORIGINS = True  
 CORS_ALLOWED_ORIGINS = ["http://localhost:3000",]
 CORS_ALLOW_CREDENTIALS = True
@@ -42,6 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
     'corsheaders',
     'drf_yasg',
     'cash_predictor',
@@ -58,6 +64,12 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+    ]
+}
 
 ROOT_URLCONF = 'atmo_platform.urls'
 

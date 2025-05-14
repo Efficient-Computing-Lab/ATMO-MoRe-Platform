@@ -14,9 +14,9 @@
 #You should have received a copy of the GNU Affero General Public License
 #along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import pymongo, json, pandas, xlrd, os
+import pymongo, pandas, xlrd, os, random
 from openpyxl import load_workbook
-from datetime import datetime
+from datetime import datetime, date
 import statistics
 import holidays
 from geopy import geocoders
@@ -309,6 +309,18 @@ class DataHandler():
             print(f"Data import failed: {ex}")
             results['cit_info'] = {"success":False,"error":str(ex)}
         return results
+    
+    def generate_test_data(self,size:int) -> list[dict]:
+        codes = random.choices(self.atm_codes,k=size)
+        today = date.today()
+        records = []
+        for code in codes:
+            records.append({
+                "ATM": code,
+                "date": f"{today.day:02d}/{today.month:02d}/{today.year}",
+                "value": random.randrange(15,80)/100.0
+            })
+        return records
 
 class Preprocessor():
     """ Basic preprocessor class for atmo more data """

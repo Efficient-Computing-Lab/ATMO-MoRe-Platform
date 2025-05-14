@@ -5,6 +5,10 @@ import { useToast } from "../context/ToastContext";
 import optimization_strings from "../localizations/Optimization";
 import { OptimizationCSVProducer } from "../producers/OptimizationCSVProducer";
 import { OptimizationJSONProducer } from "../producers/OptimizationJSONProducer";
+import info_strings from "../localizations/InfoModals";
+import InfoModal from "../utils/InfoModal";
+import JsonDataTable from "../utils/JSONDataTable";
+import TestDataConsumer from "../consumers/TestDataConsumer";
 
 function Optimization() {
     useLanguage();
@@ -12,12 +16,12 @@ function Optimization() {
     const { optimizationCSVProducerResponse, optimizationCSVProducerError, optimizationCSVProducerExecute } = OptimizationCSVProducer();
     const { optimizationJSONProducerResponse, optimizationJSONProducerError, optimizationJSONProducerExecute } = OptimizationJSONProducer();
     const [file, setFile] = useState(null);
-    const [model, setModel] = useState("approximation"); // Default model
-    const [jsonData, setJsonData] = useState(""); // Default model
+    const [model, setModel] = useState("approximation");
+    const [jsonData, setJsonData] = useState();
     const [loading, setLoading] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [fullscreenModal, setFullscreenModal] = useState(false);
-    const [modalContent, setModalContent] = useState("");
+    const [modalContent, setModalContent] = useState(sessionStorage.getItem("optimizationModalContent") || "");
     const csvFileRef = useRef();
 
     const handleModalClose = () => {
@@ -112,6 +116,12 @@ function Optimization() {
         setShowToast, setToastMessage, setToastVariant
     ]);
 
+    useEffect(() => {
+        if (modalContent) {
+            sessionStorage.setItem("optimizationModalContent", modalContent);
+        }
+    }, [modalContent]);
+
     return (
         <Col xs={9} style={{ marginLeft: '250px' }}>
             <h2 className="my-4">{optimization_strings.title}</h2>
@@ -120,6 +130,11 @@ function Optimization() {
                     <Card className="flex-fill">
                         <Card.Header className="bg-primary text-white">
                             {optimization_strings.csv_input}
+                            <InfoModal 
+                                shortText={info_strings.optimization_csv_short}
+                                fullText={info_strings.optimization_csv_full}
+                                theme={"dark"}
+                            />
                         </Card.Header>
                         <Card.Body>
                             <Form onSubmit={null}>
@@ -136,21 +151,6 @@ function Optimization() {
                                 <Form.Group controlId="formCSV" className="mb-3">
                                     <Form.Label>{optimization_strings.csv_input_label}</Form.Label>
                                     <Form.Control type="file" accept=".csv" onChange={handleFileChange} ref={csvFileRef} />
-                                </Form.Group>
-                            </Form>
-                        </Card.Body>
-                    </Card>
-                </Col>
-                <Col className="d-flex">
-                    <Card className="flex-fill">
-                        <Card.Header className="bg-primary text-white">
-                            {optimization_strings.json_input}
-                        </Card.Header>
-                        <Card.Body>
-                            <Form onSubmit={null}>
-                                <Form.Group controlId="formJSON" className="mb-3">
-                                    <Form.Label>{optimization_strings.json_input_label}</Form.Label>
-                                    <textarea className="form-control" rows="15" onChange={handleJSONChange} value={jsonData}></textarea>
                                 </Form.Group>
                             </Form>
                         </Card.Body>
@@ -202,6 +202,26 @@ function Optimization() {
                     </Card>
                 </Col>
             </Row>
+
+            <Row className="mt-3">
+                <Col className="d-flex">
+                    <Card className="flex-fill">
+                        <Card.Header className="bg-primary text-white">
+                            {optimization_strings.json_input_label}
+                        </Card.Header>
+                        <Card.Body>
+                            <TestDataConsumer>
+                                {(testData) => {
+                                    setJsonData(testData);
+                                    const parsedData = jsonData ? JSON.parse(jsonData).data : [];
+                                    return (<JsonDataTable jsonData={parsedData} />);
+                                }}
+                            </TestDataConsumer>
+                        </Card.Body>
+                    </Card>
+                </Col>
+            </Row>
+
             <Modal show={showModal} fullscreen={fullscreenModal} onHide={handleModalClose} 
                 dialogClassName={fullscreenModal ? "" : "modal-90w"} backdrop={"static"} keyboard={false}
             >

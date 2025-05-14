@@ -5,6 +5,9 @@ import data_manager_strings from "../localizations/DataManager";
 import optimization_strings from "../localizations/Optimization";
 import analytics_strings from "../localizations/Analytics";
 import prediction_strings from "../localizations/Prediction";
+import jsondata_strings from "../localizations/JSONDataTable";
+import info_strings from "../localizations/InfoModals";
+import security_strings from "../localizations/Security";
 
 const LanguageContext = createContext();
 
@@ -18,6 +21,9 @@ export const LanguageProvider = ({ children }) => {
     optimization_strings.setLanguage(lang);
     analytics_strings.setLanguage(lang);
     prediction_strings.setLanguage(lang);
+    jsondata_strings.setLanguage(lang);
+    info_strings.setLanguage(lang);
+    security_strings.setLanguage(lang);
     setLanguage(lang);
   };
 

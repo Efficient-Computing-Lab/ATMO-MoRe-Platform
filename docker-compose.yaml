@@ -22,7 +22,12 @@ services:
     build: ./django
     container_name: atmo-django
     working_dir: /atmo
-    command: python manage.py runserver 0.0.0.0:8000
+    command: >
+      sh -c "
+        python manage.py migrate &&
+        python manage.py createsuperuser --no-input || true &&
+        python manage.py runserver 0.0.0.0:8000
+      "
     volumes:
       - ./django:/atmo
     ports:

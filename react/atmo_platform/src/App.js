@@ -12,6 +12,10 @@ import Prediction from "./dashboards/Prediction";
 import Optimization from "./dashboards/Optimization";
 import Navbar from "./modulars/Navbar";
 import Sidebar from "./modulars/Sidebar";
+import Login from "./security/Login";
+import Logout from "./security/Logout";
+import Register from "./security/Register";
+import PrivateRoute from "./utils/PrivateRoute";
 
 function App() {
 
@@ -29,10 +33,13 @@ function App() {
           <Container fluid style={{paddingTop:"50px"}}>
             <Row>
               <Routes>
-                <Route path="/" element={<DataManager />} />
-                <Route path="/prediction" element={<Prediction />} />
-                <Route path="/optimization" element={<Optimization />} />
-                <Route path="/analytics" element={<Analytics />} />
+                <Route path="/" element={<PrivateRoute><DataManager /></PrivateRoute>} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/logout" element={<Logout />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/prediction" element={<PrivateRoute><Prediction /></PrivateRoute>} />
+                <Route path="/optimization" element={<PrivateRoute><Optimization /></PrivateRoute>} />
+                <Route path="/analytics" element={<PrivateRoute><Analytics /></PrivateRoute>} />
               </Routes>
             </Row>
           </Container>

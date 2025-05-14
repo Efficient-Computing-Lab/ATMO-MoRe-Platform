@@ -27,7 +27,7 @@ function TimeseriesStatisticsConsumer({ children }) {
         analytics_strings.timeseries_data_coverage,
     ];
 
-    const [chartData, setChartData] = useState({
+    const [chartData, setChartData] = useState(JSON.stringify({
         labels: [],
         datasets: data_labels.map((data_label, index) => {
             const colors = getRandomColor();
@@ -39,37 +39,47 @@ function TimeseriesStatisticsConsumer({ children }) {
                 ...colors, // Apply random colors
             };
         }),
-    });
+    }));
 
     useEffect(() => {
-        fetch(django_server + "/data_handler/statistics/atm_codes")
-            .then((response) => response.json())
-            .then((data) => {
-                const labels = data.map((item) => item.atm);
-                const values = [
-                    data.map((item) => item.avg),
-                    data.map((item) => item.min),
-                    data.map((item) => item.max),
-                    data.map((item) => item.median),
-                    data.map((item) => item.length),
-                    data.map((item) => item.coverage),
-                ];
+        const timeseriesStatisticsJSON = sessionStorage.getItem("timeseriesStatisticsJSON");
 
-                setChartData({
-                    labels: labels,
-                    datasets: data_labels.map((data_label, index) => {
-                        const colors = getRandomColor();
-                        return {
-                            label: data_label,
-                            data: values[index],
-                            fill: true,
-                            hidden: index !== 0,
-                            ...colors, // Apply random colors
-                        };
-                    }),
-                });
-            })
-            .catch((error) => console.error("Error fetching data:", error));
+        if(!timeseriesStatisticsJSON){
+            sessionStorage.setItem("timeseriesStatisticsJSON",JSON.stringify(chartData, null, 2));
+
+            fetch(django_server + "/data_handler/statistics/atm_codes")
+                .then((response) => response.json())
+                .then((data) => {
+                    const labels = data.map((item) => item.atm);
+                    const values = [
+                        data.map((item) => item.avg),
+                        data.map((item) => item.min),
+                        data.map((item) => item.max),
+                        data.map((item) => item.median),
+                        data.map((item) => item.length),
+                        data.map((item) => item.coverage),
+                    ];
+                    const chartDataRaw = {
+                        labels: labels,
+                        datasets: data_labels.map((data_label, index) => {
+                            const colors = getRandomColor();
+                            return {
+                                label: data_label,
+                                data: values[index],
+                                fill: true,
+                                hidden: index !== 0,
+                                ...colors, // Apply random colors
+                            };
+                        }),
+                    };
+
+                    setChartData(JSON.stringify(chartDataRaw));
+                    sessionStorage.setItem("timeseriesStatisticsJSON",JSON.stringify(chartDataRaw, null, 2));
+                })
+                .catch((error) => console.error("Error fetching data:", error));
+        }else{
+            setChartData(timeseriesStatisticsJSON);
+        }
     }, []);
 
     return children(chartData);

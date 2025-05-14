@@ -18,9 +18,10 @@ from django.contrib import admin
 from django.urls import path, re_path
 from cash_predictor.views import ImportDataView, ApplyModelJSONView, EvaluateDeepModelsView, \
     EvaluateClassicModelsView, ApplyModelCSVView, ATMCodesView, ATMStatsView, SupplyTypesView, \
-    SupplyTypesView, SupplyTypeStatsView, ATMDataView
+    SupplyTypesView, SupplyTypeStatsView, ATMDataView, GenerateTestDataView
 from supply_optimizer.views import CreatePlansCSVView,CreatePlansJSONView, VisualizePlansCSVView, \
     VisualizePlansJSONView
+from atmo_security.views import LoginView, LogoutView, RegisterView, UserView, get_csrf_token
 #from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
@@ -46,8 +47,32 @@ urlpatterns = [
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     #path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     path('admin/', admin.site.urls),
+    path('security/csrf/', 
+        get_csrf_token,
+        name='security_csrf_token'
+    ),
+    path('security/login/', 
+        LoginView.as_view(),
+        name='security_login'
+    ),
+    path('security/logout/', 
+        LogoutView.as_view(),
+        name='security_logout'
+    ),
+    path('security/register/', 
+        RegisterView.as_view(),
+        name='security_register'
+    ),
+    path('security/user_info/', 
+        UserView.as_view(),
+        name='security_user_info'
+    ),
     path('data_handler/refresh_data',
         ImportDataView.as_view(),
+        name='data_handler_data_refresh'
+    ),
+    path('data_handler/create_test_data',
+        GenerateTestDataView.as_view(),
         name='data_handler_data_refresh'
     ),
     path('data_handler/atm_codes',

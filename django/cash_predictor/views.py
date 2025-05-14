@@ -10,7 +10,8 @@ from cash_predictor.predictor.evaluator import evaluate_models_timelag, evaluate
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from atmo_platform.conf import AtmoConfiguration
-import pandas, json
+import pandas, json, os
+import traceback
 #from pathlib import Path
 
 class ImportDataView(APIView):
@@ -25,6 +26,30 @@ class ImportDataView(APIView):
             results = dh.atm_renew_data()
             return Response(data=results,status=HTTP_200_OK)
         except Exception as ex:
+            return Response(data={'error': f"Error on data loading: {ex}"},status=HTTP_500_INTERNAL_SERVER_ERROR)
+        
+class GenerateTestDataView(APIView):
+    @swagger_auto_schema(
+        operation_summary="Ενημέρωση δεδομένων",
+        operation_description="Εισάγει ή ενημερώνει τα δεδομένα της βάσης MongoDB από τα αρχεία.",
+        tags=["Χειριστής δεδομένων"]
+    )
+    def post(self, request, *args, **kwargs):
+        try:
+            dh = DataHandler()
+            results = dh.generate_test_data(200)
+            filepath = os.path.join(AtmoConfiguration.datastore_conf['datastore_path'],'test_csv.csv')
+            pandas.DataFrame.from_records(results).to_csv(filepath,sep=';',decimal='.',quotechar='"',index=False)
+            return Response(data=results,status=HTTP_200_OK)
+        except Exception as ex:
+            return Response(data={'error': f"Error on data loading: {ex}"},status=HTTP_500_INTERNAL_SERVER_ERROR)
+    def get(self, request, *args, **kwargs):
+        try:
+            dh = DataHandler()
+            results = dh.generate_test_data(200)
+            return Response(data=results,status=HTTP_200_OK)
+        except Exception as ex:
+            print(traceback.format_exc())
             return Response(data={'error': f"Error on data loading: {ex}"},status=HTTP_500_INTERNAL_SERVER_ERROR)
 
 class ATMCodesView(APIView):

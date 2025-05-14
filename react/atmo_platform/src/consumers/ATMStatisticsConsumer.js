@@ -3,12 +3,12 @@ import analytics_strings from "../localizations/Analytics";
 import consumer_strings from "../localizations/Consumers";
 import { useLanguage } from "../context/LanguageContext";
 
-function ATMStatisticsConsumer({ atmCode,setDataLoading,children }) {
+function ATMStatisticsConsumer({ atmCode,dataLoading,setDataLoading,children }) {
     useLanguage();
 
     const django_server = process.env.REACT_APP_DJANGO_HOST;
 
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(dataLoading);
     const [chartData, setChartData] = useState({
         labels: [],
         datasets: [
@@ -28,36 +28,38 @@ function ATMStatisticsConsumer({ atmCode,setDataLoading,children }) {
             return;
         }
 
-        setLoading(true);
-        setDataLoading(true);
-        fetch(`${django_server}/data_handler/statistics/atm/${atmCode}`)
-            .then((response) => response.json().then((data) => {
-                if (!response.ok) {  
-                    return Promise.reject(`${consumer_strings.error_server}${response.status} - ${data.error}`);
-                }
-                const labels = data.map((item) => (new Date(parseInt(item.timestamp))).toLocaleString().split(",")[0]);
-                const values = data.map((item) => item.value);
+        if((!loading) && (!dataLoading)){
+            setLoading(true);
+            setDataLoading(true);
+            fetch(`${django_server}/data_handler/statistics/atm/${atmCode}`)
+                .then((response) => response.json().then((data) => {
+                    if (!response.ok) {  
+                        return Promise.reject(`${consumer_strings.error_server}${response.status} - ${data.error}`);
+                    }
+                    const labels = data.map((item) => (new Date(parseInt(item.timestamp))).toLocaleString().split(",")[0]);
+                    const values = data.map((item) => item.value);
 
-                setChartData({
-                    labels: labels,
-                    datasets: [
-                        {
-                            label: analytics_strings.supply_data,
-                            data: values,
-                            borderColor: 'rgba(75, 192, 192, 1)',
-                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                            fill: true,
-                        },
-                    ],
+                    setChartData({
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: analytics_strings.supply_data,
+                                data: values,
+                                borderColor: 'rgba(75, 192, 192, 1)',
+                                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                fill: true,
+                            },
+                        ],
+                    });
+                    setLoading(false);
+                    setDataLoading(false);
+                }))
+                .catch((error) => {
+                    console.error(`${consumer_strings.error_nodata}${error}`);
+                    setLoading(false);
+                    setDataLoading(false);
                 });
-                setLoading(false);
-                setDataLoading(false);
-            }))
-            .catch((error) => {
-                console.error(`${consumer_strings.error_nodata}${error}`);
-                setLoading(false);
-                setDataLoading(false);
-            });
+        }
     }, [atmCode]);
 
     return children(chartData, loading);

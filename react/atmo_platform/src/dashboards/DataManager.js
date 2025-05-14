@@ -1,9 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { Button, Card, Col, Form, Modal, Row, Spinner, Badge } from "react-bootstrap";
 import { useLanguage } from "../context/LanguageContext";
 import { useToast } from "../context/ToastContext";
 import data_manager_strings from "../localizations/DataManager";
 import { DatahandlerRefreshProducer } from "../producers/DatahandlerRefreshProducer";
+import info_strings from "../localizations/InfoModals";
+import InfoModal from "../utils/InfoModal";
 
 function DataManager() {
     useLanguage();
@@ -23,13 +25,14 @@ function DataManager() {
     };
 
     const handleDataRefresh = async () => {
-        setShowToast(false);
-        setLoading(true);
-        
-        try {
-            datahandlerRefreshProducerExecute();
-        } catch (err) {
-            console.error("Error executing refresh:", err);
+        if(!loading){
+            setShowToast(false);
+            setLoading(true);
+            try {
+                datahandlerRefreshProducerExecute();
+            } catch (err) {
+                console.error("Error executing refresh:", err);
+            }
         }
     };
 
@@ -46,13 +49,28 @@ function DataManager() {
         }
     }, [responseData, error, setShowToast, setToastMessage, setToastVariant]);
 
+    useLayoutEffect(() => {
+        const hasAutoRefreshed = sessionStorage.getItem("dataAutoRefreshTriggered");
+        if(!hasAutoRefreshed){
+            sessionStorage.setItem("dataAutoRefreshTriggered", "true");
+            handleDataRefresh();
+        }
+    },[]);
+
     return (
         <Col style={{ marginLeft: "250px" }}>
             <h2 className="my-4">{data_manager_strings.title}</h2>
             <Row>
                 <Col className="d-flex">
                     <div className="card flex-fill">
-                        <h5 className="card-header bg-primary text-light">{data_manager_strings.dataset_upload_title}</h5>
+                        <h5 className="card-header bg-primary text-light">
+                            {data_manager_strings.dataset_upload_title}
+                            <InfoModal 
+                                shortText={info_strings.dataset_zip_short}
+                                fullText={info_strings.dataset_zip_full}
+                                theme={"dark"}
+                            />
+                        </h5>
                         <div className="card-body">
                             <Form>
                                 <Form.Group controlId="formFile" className="mb-3">

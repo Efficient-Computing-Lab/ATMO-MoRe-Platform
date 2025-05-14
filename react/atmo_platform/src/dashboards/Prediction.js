@@ -1,10 +1,15 @@
 import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { Button, Card, Col, Form, Modal, Row, Spinner, Badge } from "react-bootstrap";
 import { useLanguage } from "../context/LanguageContext";
 import { useToast } from "../context/ToastContext";
 import prediction_strings from "../localizations/Prediction";
 import { PredictionCSVProducer } from "../producers/PredictionCSVProducer";
 import { PredictionJSONProducer } from "../producers/PredictionJSONProducer";
+import info_strings from "../localizations/InfoModals";
+import InfoModal from "../utils/InfoModal";
+import JsonDataTable from "../utils/JSONDataTable";
+import TestDataConsumer from "../consumers/TestDataConsumer";
 
 function Prediction() {
     useLanguage();
@@ -12,11 +17,11 @@ function Prediction() {
     const { predictionCSVProducerResponse, predictionCSVProducerError, predictionCSVProducerExecute } = PredictionCSVProducer();
     const { predictionJSONProducerResponse, predictionJSONProducerError, predictionJSONProducerExecute } = PredictionJSONProducer();
     const [file, setFile] = useState(null);
-    const [jsonData, setJsonData] = useState("");
+    const [jsonData, setJsonData] = useState();
     const [loading, setLoading] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [fullscreenModal, setFullscreenModal] = useState(false);
-    const [modalContent, setModalContent] = useState("");
+    const [modalContent, setModalContent] = useState(sessionStorage.getItem("predictionModalContent") || "");
     const csvFileRef = useRef();
 
     const handleModalClose = () => {
@@ -87,7 +92,7 @@ function Prediction() {
     useEffect(() => {
         if (predictionCSVProducerResponse || predictionJSONProducerResponse) {
             const producerResponse = (predictionCSVProducerResponse ? predictionCSVProducerResponse : predictionJSONProducerResponse);
-            setModalContent(producerResponse);
+            setModalContent(JSON.stringify(producerResponse));
             setShowModal(true);
             setLoading(false);
         } else if (predictionCSVProducerError || predictionJSONProducerError) {
@@ -106,6 +111,12 @@ function Prediction() {
         setShowToast, setToastMessage, setToastVariant
     ]);
 
+    useEffect(() => {
+        if (modalContent) {
+            sessionStorage.setItem("predictionModalContent", modalContent);
+        }
+    }, [modalContent]);
+
     return (
         <Col xs={9} style={{ marginLeft: '250px' }}>
             <h2 className="my-4">{prediction_strings.title}</h2>
@@ -114,27 +125,19 @@ function Prediction() {
                     <Card className="flex-fill">
                         <Card.Header className="bg-primary text-white">
                             {prediction_strings.csv_input}
+                            <InfoModal 
+                                shortText={info_strings.prediction_csv_short}
+                                fullText={info_strings.prediction_csv_full}
+                                theme={"dark"}
+                            />
                         </Card.Header>
                         <Card.Body>
                             <Form onSubmit={null}>
                                 <Form.Group controlId="formCSV" className="mb-3">
-                                    <Form.Label>{prediction_strings.csv_input_label}</Form.Label>
+                                    <Form.Label>
+                                        {prediction_strings.csv_input_label}
+                                    </Form.Label>
                                     <Form.Control type="file" accept=".csv" onChange={handleFileChange} ref={csvFileRef} />
-                                </Form.Group>
-                            </Form>
-                        </Card.Body>
-                    </Card>
-                </Col>
-                <Col className="d-flex">
-                    <Card className="flex-fill">
-                        <Card.Header className="bg-primary text-white">
-                            {prediction_strings.json_input}
-                        </Card.Header>
-                        <Card.Body>
-                            <Form onSubmit={null}>
-                                <Form.Group controlId="formJSON" className="mb-3">
-                                    <Form.Label>{prediction_strings.json_input_label}</Form.Label>
-                                    <textarea className="form-control" rows="15" onChange={handleJSONChange} value={jsonData}></textarea>
                                 </Form.Group>
                             </Form>
                         </Card.Body>
@@ -186,6 +189,25 @@ function Prediction() {
                     </Card>
                 </Col>
             </Row>
+            <Row className="mt-3">
+                <Col className="d-flex">
+                    <Card className="flex-fill">
+                        <Card.Header className="bg-primary text-white">
+                            {prediction_strings.json_input_label}
+                        </Card.Header>
+                        <Card.Body>
+                            <TestDataConsumer>
+                                {(testData) => {
+                                    const parsedInData = testData ? JSON.parse(testData).data : "";
+                                    setJsonData(JSON.stringify(parsedInData));
+                                    const parsedData = jsonData ? JSON.parse(jsonData) : [];
+                                    return (<JsonDataTable jsonData={parsedData} />);
+                                }}
+                            </TestDataConsumer>
+                        </Card.Body>
+                    </Card>
+                </Col>
+            </Row>
             <Modal show={showModal} fullscreen={fullscreenModal} onHide={handleModalClose} 
                 dialogClassName={fullscreenModal ? "" : "modal-90w"} backdrop={"static"} keyboard={false}
             >
@@ -195,24 +217,37 @@ function Prediction() {
                 </Modal.Header>
                 <Modal.Body>
                     {modalContent && (
-                        <Row>
-                            {Object.entries(modalContent).map(([key, values]) => (
+                        <Card className="mb-4">
+                        <Card.Header className="bg-primary text-white text-center">
+                            {(new Date(+new Date() + 86400000)).toLocaleDateString('el-GR')}
+                        </Card.Header>
+                        <Card.Body>
+                            <Row>
+                            {Object.entries(JSON.parse(modalContent)).map(([key, values]) => (
                                 <Col key={key} md={4}>
-                                    <Card className="mb-3">
-                                        <Card.Header className="bg-primary text-white text-center">
-                                            {key.replace('_', ' ').toUpperCase()}
-                                        </Card.Header>
-                                        <Card.Body className="d-flex flex-wrap gap-2">
-                                            {values.map((atmCode) => (
-                                                <Badge key={atmCode} pill bg="primary" className="p-2">
-                                                    {atmCode}
-                                                </Badge>
-                                            ))}
-                                        </Card.Body>
-                                    </Card>
+                                <Card className="mb-3">
+                                    <Card.Header className="bg-primary text-white text-center">
+                                    {prediction_strings[key] || key.replaceAll("_", " ").toUpperCase()}
+                                    </Card.Header>
+                                    <Card.Body className="d-flex flex-wrap gap-2">
+                                    {values.map((atmCode) => (
+                                        <Link
+                                        to={`/analytics?tab=atm&atm=${atmCode}`}
+                                        style={{ textDecoration: "none" }}
+                                        key={atmCode}
+                                        >
+                                        <Badge pill bg="primary" className="p-2">
+                                            {atmCode}
+                                        </Badge>
+                                        </Link>
+                                    ))}
+                                    </Card.Body>
+                                </Card>
                                 </Col>
                             ))}
-                        </Row>
+                            </Row>
+                        </Card.Body>
+                        </Card>
                     )}
                 </Modal.Body>
             </Modal>
